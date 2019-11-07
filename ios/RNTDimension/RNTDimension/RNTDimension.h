@@ -1,13 +1,9 @@
-//
-//  RNTDimension.h
-//  RNTDimension
-//
-//  Created by zhujl on 2019/11/7.
-//  Copyright © 2019 finstao. All rights reserved.
-//
 
-#import <Foundation/Foundation.h>
+#import <React/RCTViewManager.h>
+#import <React/RCTBridgeModule.h>
 
-@interface RNTDimension : NSObject
+@interface RNTDimension : NSObject <RCTBridgeModule>
+
++ (void)bind:(RCTRootView *)rootView;
 
 @end

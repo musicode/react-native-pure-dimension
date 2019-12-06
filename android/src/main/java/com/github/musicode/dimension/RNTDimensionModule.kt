@@ -118,20 +118,28 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
 
     private fun getRealScreenSize(): WritableMap {
 
-        val metrics = reactApplicationContext.resources.displayMetrics
+        var metrics = reactApplicationContext.resources.displayMetrics
+
+        // 不要改写 metrics，一旦改写，会导致后续所有访问都变成改后的值
+        val density = metrics.density
+        var width = metrics.widthPixels
+        var height = metrics.heightPixels
 
         // See: http://developer.android.com/reference/android/view/Display.html#getRealMetrics(android.util.DisplayMetrics)
         if (Build.VERSION.SDK_INT >= 17) {
             val display = (reactContext.getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay
             try {
+                metrics = DisplayMetrics()
                 Display::class.java.getMethod("getRealMetrics", DisplayMetrics::class.java).invoke(display, metrics)
+                width = metrics.widthPixels
+                height = metrics.heightPixels
             } catch (e: Exception) {
             }
         }
 
         val map = Arguments.createMap()
-        map.putInt("width", (metrics.widthPixels / metrics.density).toInt())
-        map.putInt("height", (metrics.heightPixels / metrics.density).toInt())
+        map.putInt("width", (width / density).toInt())
+        map.putInt("height", (height / density).toInt())
 
         return map
 

@@ -9,8 +9,8 @@ export default {
     return RNTDimension.getStatusBarHeight()
   },
 
-  getNavigationBarInfo() {
-    return RNTDimension.getNavigationBarInfo()
+  getNavigationBarHeight() {
+    return RNTDimension.getNavigationBarHeight()
   },
 
   getScreenSize() {

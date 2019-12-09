@@ -41,9 +41,8 @@ dimension.getStatusBarHeight().then(data => {
   data.height
 })
 
-dimension.getNavigationBarInfo().then(data => {
+dimension.getNavigationBarHeight().then(data => {
   data.height
-  data.visible
 })
 
 dimension.getScreenSize().then(data => {

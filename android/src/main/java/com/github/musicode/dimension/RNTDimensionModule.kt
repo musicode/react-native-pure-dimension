@@ -2,9 +2,10 @@ package com.github.musicode.dimension
 
 import android.os.Build
 import com.facebook.react.bridge.*
-import android.util.DisplayMetrics
 import android.view.Display
 import android.content.Context.WINDOW_SERVICE
+import android.graphics.Point
+import android.graphics.Rect
 import android.view.WindowManager
 import java.lang.Exception
 
@@ -14,6 +15,10 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
         return "RNTDimension"
     }
 
+    private val density: Float by lazy {
+        reactApplicationContext.resources.displayMetrics.density
+    }
+
     @ReactMethod
     fun getStatusBarHeight(promise: Promise) {
 
@@ -21,7 +26,7 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
         val resId = resources.getIdentifier("status_bar_height", "dimen", "android")
 
         val height = if (resId > 0) {
-            (resources.getDimensionPixelSize(resId) / resources.displayMetrics.density).toInt()
+            (resources.getDimensionPixelSize(resId) / density).toInt()
         }
         else {
             0
@@ -35,21 +40,12 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
     }
 
     @ReactMethod
-    fun getNavigationBarInfo(promise: Promise) {
+    fun getNavigationBarHeight(promise: Promise) {
 
-        val resources = reactApplicationContext.resources
-
-        val resId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        val height = if (resId > 0) {
-            (resources.getDimensionPixelSize(resId) / resources.displayMetrics.density).toInt()
-        }
-        else {
-            0
-        }
+        val height = getNavigationBarHeight()
 
         val map = Arguments.createMap()
-        map.putInt("height", height)
-        map.putBoolean("visible", getNavigationBarVisible())
+        map.putInt("height", (height / density).toInt())
 
         promise.resolve(map)
 
@@ -59,7 +55,14 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
     fun getScreenSize(promise: Promise) {
 
         // 跟 ios 保持一致，获取的是物理屏尺寸
-        promise.resolve(getRealScreenSize())
+
+        val screenSize = getRealScreenSize()
+
+        val map = Arguments.createMap()
+        map.putInt("width", (screenSize.x / density).toInt())
+        map.putInt("height", (screenSize.y / density).toInt())
+
+        promise.resolve(map)
 
     }
 
@@ -94,54 +97,52 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
 
     }
 
-    private fun getNavigationBarVisible(): Boolean {
+    private fun getNavigationBarHeight(): Int {
+
+        val window = currentActivity?.window ?: return 0
+
+        // getScreenSize() 方法在某些手机上返回的是内容区域的尺寸
+        // 导致这里返回的是 navigation bar + status bar 的高度
+        // 因此我们改变思路，获取内容区域的位置信息，这样就能求出真实的 navigation bar 的高度了
 
         val realScreenSize = getRealScreenSize()
-        val screenSize = getScreenSize()
 
-        return realScreenSize.getInt("width") > screenSize.getInt("width")
-                || realScreenSize.getInt("height") > screenSize.getInt("height")
+        val rect = Rect()
 
-    }
+        window.decorView.getWindowVisibleDisplayFrame(rect)
 
-    private fun getScreenSize(): WritableMap {
-
-        val metrics = reactApplicationContext.resources.displayMetrics
-
-        val map = Arguments.createMap()
-        map.putInt("width", (metrics.widthPixels / metrics.density).toInt())
-        map.putInt("height", (metrics.heightPixels / metrics.density).toInt())
-
-        return map
+        return realScreenSize.y - rect.bottom
 
     }
 
-    private fun getRealScreenSize(): WritableMap {
+    private fun getScreenSize(): Point {
 
-        var metrics = reactApplicationContext.resources.displayMetrics
+        val display = (reactContext.getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay
+        val size = Point()
 
-        // 不要改写 metrics，一旦改写，会导致后续所有访问都变成改后的值
-        val density = metrics.density
-        var width = metrics.widthPixels
-        var height = metrics.heightPixels
+        display.getSize(size)
 
-        // See: http://developer.android.com/reference/android/view/Display.html#getRealMetrics(android.util.DisplayMetrics)
+        return size
+
+    }
+
+    private fun getRealScreenSize(): Point {
+
+        val display = (reactContext.getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay
+        val size = Point()
+
         if (Build.VERSION.SDK_INT >= 17) {
-            val display = (reactContext.getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay
+            display.getRealSize(size)
+        }
+        else if (Build.VERSION.SDK_INT >= 14) {
             try {
-                metrics = DisplayMetrics()
-                Display::class.java.getMethod("getRealMetrics", DisplayMetrics::class.java).invoke(display, metrics)
-                width = metrics.widthPixels
-                height = metrics.heightPixels
+                size.x = Display::class.java.getMethod("getRawWidth").invoke(display) as Int
+                size.y = Display::class.java.getMethod("getRawHeight").invoke(display) as Int
             } catch (e: Exception) {
             }
         }
 
-        val map = Arguments.createMap()
-        map.putInt("width", (width / density).toInt())
-        map.putInt("height", (height / density).toInt())
-
-        return map
+        return size
 
     }
 

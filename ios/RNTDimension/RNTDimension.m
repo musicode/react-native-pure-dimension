@@ -25,11 +25,10 @@ RCT_EXPORT_METHOD(getStatusBarHeight:(RCTPromiseResolveBlock)resolve reject:(RCT
   
 }
 
-RCT_EXPORT_METHOD(getNavigationBarInfo:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getNavigationBarHeight:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
     
     resolve(@{
       @"height": @(0),
-      @"visible": @(FALSE),
     });
   
 }

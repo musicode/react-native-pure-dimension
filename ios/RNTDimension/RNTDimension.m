@@ -18,9 +18,9 @@ static UIView *appView = nil;
 RCT_EXPORT_MODULE(RNTDimension);
 
 RCT_EXPORT_METHOD(getStatusBarHeight:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
-    
+
     resolve(@{
-      @"height": @(RCTSharedApplication().statusBarFrame.size.height),
+      @"height": @(UIApplication.sharedApplication.statusBarFrame.size.height),
     });
   
 }

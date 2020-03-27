@@ -56,5 +56,4 @@ dimension.getSafeArea().then(data => {
   data.bottom
   data.left
 })
-
 ```

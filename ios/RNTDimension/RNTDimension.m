@@ -34,7 +34,7 @@ NSDictionary* getSafeArea() {
     }
     
     return @{
-        @"top": @(0),
+        @"top": @(getStatusBarHeight()),
         @"bottom": @(0),
         @"left": @(0),
         @"right": @(0)
@@ -47,6 +47,10 @@ NSDictionary* getSafeArea() {
 
 + (void)bind:(RCTRootView *)rootView {
     appView = rootView;
+}
+
++ (BOOL)requiresMainQueueSetup {
+    return YES;
 }
 
 - (dispatch_queue_t)methodQueue {

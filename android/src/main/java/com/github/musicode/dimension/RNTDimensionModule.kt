@@ -22,7 +22,7 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
 
         // 记录第一次的值
         constants["STATUS_BAR_HEIGHT"] = getStatusBarHeight()
-        constants["NAVIGATION_BAR_HEIGHT"] = getStatusBarHeight()
+        constants["NAVIGATION_BAR_HEIGHT"] = getNavigationBarHeight()
 
         val screenSize = getScreenSizeMap()
         constants["SCREEN_WIDTH"] = screenSize.getInt("width")
@@ -124,7 +124,7 @@ class RNTDimensionModule(private val reactContext: ReactApplicationContext) : Re
     private fun getSafeAreaMap(): WritableMap {
 
         val map = Arguments.createMap()
-        map.putInt("top", 0)
+        map.putInt("top", getStatusBarHeight())
         map.putInt("bottom", 0)
         map.putInt("left", 0)
         map.putInt("right", 0)

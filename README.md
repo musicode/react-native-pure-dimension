@@ -1,5 +1,7 @@
 # react-native-pure-dimension
 
+> This repo is deprecated, please visit the new [dimension](https://github.com/react-native-hero/dimension) repo.
+
 This is a module which help you get screen dimension info.
 
 ## Installation
